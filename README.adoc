@@ -1,0 +1,202 @@
+= Showcase for Hadoop with CDC on Quarkus
+
+This project holds a showcase for Hadoop with CDC on Quarkus.
+
+== Make targets
+
+Following make targets exist in the subfolder **podman**:
+
+=== Container and co
+
+- **pd-machine-create** - Create a suitable Qemu machine
+- **pd-pod-create** - Create the pod with port mappings
+- **pd-pod-rm** - Remove pod
+- **pd-pod-recreate** - Remove and recreate the pod
+- **pd-build** - Build all images
+- **pd-init** - Create machine, pod and build all images
+- **pd-start** - Start all container
+
+Following make targets are available **here**:
+
+=== Tools
+
+- **todo** - Create todo entry via curl
+- **list** - List todo entries via curl
+- **kat-listen** - Listen for Kafka messages
+- **kat-send** - Send Kafka message
+- **psql** - Use psql CLI to connect to Postgres
+
+=== Hive
+
+- **beeline** - Start beeline CLI and connect to Hive
+- **beeline-hive-select** - Select data from **hive_todos**
+- **beeline-debezium-select** - Select data from **debezium_todos**
+- **beeline-spark-select** - Select data from **spark_messages** and **spark_todos**
+
+=== Spark
+
+- **spark-shell** - Start Spark shell and connect to Spark
+- **spark-beeline** - Start Spark Beeline and connect to Spark
+
+- **data-init** - Init all Hive data
+- **copy** - Copy the Scala jar into the Hadoop container
+
+=== Browser
+
+- **open-namenode** - Open the namenode in a browser
+- **open-datanode** - Open the datanode in a browser
+- **open-spark-master** - Open the Spark master in a browser
+- **open-spark-slave** - Open the Spark slave in a browser
+- **open-spark-shell** - Open the Spark shell in a browser
+- **open-resourcemanager** - Open the Resoucemanager in a browser
+- **open-debezium** - Open the Debezium in a browser
+- **open-app** - Open the Quarkus Dev tools in a browser
+
+== How to use
+
+=== Initial setup
+
+. Create podman machine: `make -C podman pd-machine-create`
+. Start podman machine: `make -C podman pd-machine-start`
+. Create pod: `make -C podman pd-pod-create`
+. Build all containers: `make -C podman pd-build`
+. Start all containers: `make -C podman pd-start`
+
+=== Start everything on host
+
+. Init Hive tables: `make init`
+. Compile scala jar: `make scala`
+. SSH into Hadoop pod: `make ssh`
+
+=== Run everything on ssh
+
+. Copy scala jar to Hadoop: `make copy`
+. Init Spark tables: `make init`
+. Run scala jar: `make run`
+. Create todo via curl: `make todo`
+
+== Problems
+
+=== Dockerfile
+
+Apparently, the datanodes use components like C-libraries which I couldn't get NOT to dump core
+dump with Alpine/Musl.
+
+=== Podman
+
+Starting with Podman 4.4.1 they dropped the default privileges for chroot, which led to following
+problems on connection:
+
+```
+ssh: Connection closed by 127.0.0.1 port 22
+sshd: chroot("/run/sshd"): Operation not permitted [preauth]
+```
+
+- https://github.com/containers/podman/releases/tag/v4.4.1
+- https://forum.gitlab.com/t/failure-on-ssh-push-pull/82244
+
+=== Scala
+
+```text
+java.lang.NoSuchMethodError: 'scala.collection.immutable.ArraySeq scala.runtime.ScalaRunTime$.wrapRefArray(java.lang.Object[])'
+```
+
+```text
+Caused by: java.lang.ClassNotFoundException: scala.$less$colon$less
+```
+
+Make sure the Scala version of the jars/dependencies match the Scala version of Spark.
+
+This can be easily checked with:
+
+```shell
+mvn dependency:tree
+```
+
+== Hive
+
+The jdbc connection string for either anonymous or *hduser* for Hive is following:
+
+[source,txt]
+----
+jdbc:hive2://localhost:10000/default
+----
+
+And adding the external Debezium table works:
+
+[source,sql]
+----
+add jar /home/hduser/hive/lib/iceberg-hive-runtime-1.1.0.jar;
+create external table debezium stored by 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' location 'hdfs://localhost:9000/warehouse/debeziumevents/debeziumcdc_showcase_public_todos' TBLPROPERTIES ('iceberg.catalog'='location_based_table')"
+----
+
+== Spark
+
+Spark executors use submitted values for JAVA_HOME:
+
+https://github.com/LucaCanali/Miscellaneous/blob/master/Spark_Notes/Spark_Set_Java_Home_Howto.md
+
+== Hadoop
+
+Hadoop includes a Jakarta enabled version of Jetty, but still in v3.3.6 many of the servlets
+implement interfaces of `javax.servlets.*` and this doesn't work in a Jakarta project.
+
+[source,text]
+----
+java.lang.RuntimeException: java.lang.NoSuchMethodError: 'void org.eclipse.jetty.servlet.ServletHolder.<init>(javax.servlet.Servlet)'
+----
+
+== Links
+
+=== Hadoop
+
+- https://medium.com/analytics-vidhya/hadoop-single-node-cluster-on-docker-e88c3d09a256
+- https://github.com/rancavil/hadoop-single-node-cluster
+- https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html
+- https://www.edureka.co/blog/install-hadoop-single-node-hadoop-cluster
+- https://stackoverflow.com/questions/41266403/how-to-access-hadoop-web-ui-in-linux
+- https://www.digitalocean.com/community/tutorials/how-to-install-hadoop-in-stand-alone-mode-on-ubuntu-20-04
+- https://www.ibm.com/docs/el/db2-big-sql/5.0?topic=applications-impersonation-in-big-sql
+
+==== MapReduce
+
+- https://m-mansur-ashraf.blogspot.com/2013/02/testing-mapreduce-with-mrunit.html
+- https://cwiki.apache.org/confluence/display/MRUNIT/MRUnit+Tutorial
+
+==== Config defaults
+
+- https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml
+- https://hadoop.apache.org/docs/r2.7.1/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml
+
+=== Debezium
+
+- https://hub.docker.com/r/debezium/server
+- https://debezium.io/documentation/reference/stable/operations/debezium-server.html
+- https://github.com/memiiso/debezium-server-iceberg
+- https://debezium.io/blog/2021/10/20/using-debezium-create-data-lake-with-apache-iceberg/
+- https://iceberg.apache.org/
+- https://hadoop.apache.org/docs/r1.0.4/webhdfs.html#FsURIvsHTTP_URL
+- https://stackoverflow.com/questions/59978213/debezium-could-not-access-file-decoderbufs-using-postgres-11-with-default-plug
+- https://debezium.io/documentation/reference/stable/development/engine.html#database-history-properties
+
+=== Iceberg
+
+- https://iceberg.apache.org/docs/latest/hive/#create-external-table-overlaying-an-existing-iceberg-table
+- https://iceberg.apache.org/releases/#downloads
+- https://iceberg.apache.org/docs/latest/java-api-quickstart/
+- https://tabular.io/blog/java-api-part-3/
+
+=== Spark
+
+- https://www.dremio.com/blog/introduction-to-apache-iceberg-using-spark/
+- https://spark.apache.org/docs/latest/sql-getting-started.html
+- https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html
+- https://sparkbyexamples.com/apache-hive/how-to-connect-spark-to-remote-hive/
+- https://codait.github.io/spark-bench/
+- https://sparkbyexamples.com/spark/spark-split-dataframe-column-into-multiple-columns/
+- https://www.adaltas.com/en/2019/04/18/spark-streaming-data-pipelines-with-structured-streaming/
+
+=== Scala
+
+- https://davidb.github.io/scala-maven-plugin/usage.html
+- https://www.alibabacloud.com/help/en/e-mapreduce/latest/use-spark-to-write-data-to-an-iceberg-table-in-streaming-mode
