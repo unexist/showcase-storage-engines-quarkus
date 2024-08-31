@@ -1,3 +1,14 @@
+/**
+ * @package Showcase-Storage-Engines-Quarkus
+ *
+ * @file Todo repository
+ * @copyright 2020-present Christoph Kappel <christoph@unexist.dev>
+ * @version $Id$
+ *
+ * This program can be distributed under the terms of the Apache License v2.0.
+ * See the file LICENSE for details.
+ **/
+
 package dev.unexist.showcase.todo.infrastructure.persistence;
 
 import dev.unexist.showcase.todo.domain.todo.Todo;
@@ -8,15 +19,15 @@ import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Named;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
-@Named(value = "microstream")
+@Named("microstream")
 public class MicrostreamTodoRepository implements TodoRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(MicrostreamTodoRepository.class);
 

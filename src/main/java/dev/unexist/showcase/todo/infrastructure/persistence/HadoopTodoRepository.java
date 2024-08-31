@@ -32,12 +32,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
-@Named("hadoop_plain")
+@Named("hadoop")
 public class HadoopTodoRepository implements TodoRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(HadoopTodoRepository.class);
     private final String HADOOP_FILE = "/warehouse/quarkus/plain/todo";
