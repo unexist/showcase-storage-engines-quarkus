@@ -32,9 +32,7 @@ pd-pod-create:
 	@podman pod create -n $(PODNAME) --network bridge \
 		-p 5432:5432 \
 		-p 8080:8080 \
-		-p 8081:8081 \
 		-p 8090:8090 \
-		-p 9092:9092 \
 		-p 4040:4040 -p 4041:4041 -p 6066:6066 -p 7077:7077 -p 8020:8020 -p 8088:8088 -p 9000:9000 -p 9083:9083 -p 9864:9864 -p 9870:9870 -p 9999:9999 -p 10000:10000 -p 50030:50030
 
 pd-pod-rm:
@@ -53,9 +51,19 @@ pd-build: pd-hadoop-build pd-quarkus-build
 pd-hadoop:
 	@podman run -dit --name hadoop-single --pod=$(PODNAME) custom-hadoop:latest
 
-pd-quarkus:
-	@podman run -dit --name quarkus --pod=$(PODNAME) todo-service-debezium:0.1
+pd-postgres:
+	@podman run -dit --name postgres --pod=$(PODNAME) \
+		-e POSTGRES_USER=$(PG_USER) \
+		-e POSTGRES_PASSWORD=$(PG_PASS) \
+		docker.io/postgres:latest
 
 pd-init: pd-machine-init pd-machine-start pd-pod-create pd-images-build
 
-pd-start: pd-hadoop
+pd-start: pd-hadoop pd-postgres
+
+# Tools
+psql:
+	@PGPASSWORD=$(PG_PASS) psql -h 127.0.0.1 -U $(PG_USER)
+
+psql-schema:
+	@PGPASSWORD=$(PG_PASS) psql -h 127.0.0.1 -U $(PG_USER) -f ./../schema.sql
