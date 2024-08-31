@@ -1,5 +1,5 @@
 /**
- * @package Showcase-Hadoop-CDC-Quarkus
+ * @package Showcase-Storage-Engines-Quarkus
  *
  * @file Hadoop test lifecycle manager
  * @copyright 2023-present Christoph Kappel <christoph@unexist.dev>

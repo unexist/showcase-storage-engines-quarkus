@@ -1,5 +1,5 @@
 /**
- * @package Showcase-Hadoop-CDC-Quarkus
+ * @package Showcase-Storage-Engines-Quarkus
  *
  * @file Todo deserializer
  * @copyright 2023-present Christoph Kappel <christoph@unexist.dev>

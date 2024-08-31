@@ -1,5 +1,5 @@
 /**
- * @package Showcase-Hadoop-CDC-Quarkus
+ * @package Showcase-Storage-Engines-Quarkus
  *
  * @file Todo class and aggregate root
  * @copyright 2023-present Christoph Kappel <christoph@unexist.dev>

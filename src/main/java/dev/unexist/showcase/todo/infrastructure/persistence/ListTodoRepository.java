@@ -1,5 +1,5 @@
 /**
- * @package Showcase-Microstream-Helidon
+ * @package Showcase-Storage-Engines-Quarkus
  *
  * @file Todo repository
  * @copyright 2020-present Christoph Kappel <christoph@unexist.dev>
