@@ -21,9 +21,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +31,12 @@ import java.util.Optional;
 @Named("duck")
 public class DuckListTodoRepository implements TodoRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(DuckListTodoRepository.class);
+
+    private static final String CREATE_TABLE = "CREATE TABLE todos ("
+        + "id SERIAL,"
+        + "title TEXT NOT NULL,"
+        + "description TEXT NOT NULL)";
+
     private Connection connection;
 
     /**
@@ -42,6 +48,10 @@ public class DuckListTodoRepository implements TodoRepository {
             Class.forName("org.duckdb.DuckDBDriver");
 
             this.connection = DriverManager.getConnection("jdbc:duckdb:");
+
+            Statement stmt = this.connection.createStatement();
+
+            stmt.executeUpdate(CREATE_TABLE);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -49,7 +59,19 @@ public class DuckListTodoRepository implements TodoRepository {
 
     @Override
     public boolean add(final Todo todo) {
-        throw new NotImplementedException("Needs to be implemented later");
+        String query = "INSERT INTO todos(title, string) VALUES (?,?)";
+
+        try (PreparedStatement prepStmt = this.connection.prepareStatement(query)) {
+            prepStmt.setString(1, todo.getTitle());
+            prepStmt.setString(2, todo.getDescription());
+            prepStmt.addBatch();
+
+            prepStmt.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return true;
     }
 
     @Override
