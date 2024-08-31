@@ -32,7 +32,7 @@
         <microstream.version>05.00.02-MS-GA</microstream.version>
         <h2.version>1.4.200</h2.version>
         <rest-assured.version>5.3.0</rest-assured.version>
-        <assertj-core.version>3.24.2</assertj-core.version>
+        <assertj-core.version>3.26.3</assertj-core.version>
         <iceberg.version>1.3.1</iceberg.version>
         <parquet.version>1.13.1</parquet.version>
         <jaxb.version>4.0.3</jaxb.version>
@@ -113,6 +113,12 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -175,6 +181,12 @@
 <!--            <version>${h2.version}</version>-->
 <!--        </dependency>-->
 
+        <dependency>
+             <groupId>net.bytebuddy</groupId>
+             <artifactId>byte-buddy</artifactId>
+             <version>1.14.17</version>
+         </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>io.rest-assured</groupId>
@@ -187,6 +199,12 @@
             <artifactId>assertj-core</artifactId>
             <version>${assertj-core.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -214,4 +232,11 @@
             </plugin>
         </plugins>
     </build>
+    <repositories>
+        <repository>
+            <id>maven_central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
+    </repositories>
 </project>
