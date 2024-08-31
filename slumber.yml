@@ -1,0 +1,16 @@
+profiles:
+    development:
+        data:
+            host: http://localhost:8080
+
+requests:
+    list: !request
+        method: GET
+        url: "{{host}}/todo"
+
+    todo: !request
+        method: POST
+        url: "{{host}}/todo"
+        headers:
+            accept: application/json
+        body: !json { "description": "string", "done": true, "title": "string" }
