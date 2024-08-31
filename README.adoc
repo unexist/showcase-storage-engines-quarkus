@@ -7,3 +7,8 @@ This project holds a showcase for storage engines on Quarkus.
 - Playn in-memory array
 - Hadoop
 - Microstream
+
+=== Tools
+
+- https://hurl.dev/
+- https://slumber.lucaspickering.me/
