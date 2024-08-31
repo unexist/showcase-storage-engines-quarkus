@@ -21,7 +21,7 @@ import java.util.Optional;
 public class TodoService {
 
     @Inject
-    @Named("hadoop_plain")
+    @Named("duck")
     TodoRepository todoRepository;
 
     /**
