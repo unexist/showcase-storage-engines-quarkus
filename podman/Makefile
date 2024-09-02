@@ -57,7 +57,7 @@ pd-postgres:
 		-e POSTGRES_PASSWORD=$(PG_PASS) \
 		docker.io/postgres:latest
 
-pd-init: pd-machine-init pd-machine-start pd-pod-create pd-images-build
+pd-init: pd-machine-init pd-machine-start pd-pod-create
 
 pd-start: pd-hadoop pd-postgres
 
